@@ -1,0 +1,31 @@
+version: "3.8"
+
+services:
+  admin:
+    extends:
+      file: django_app.yml
+      service: web
+    entrypoint: sh
+    command: -c "python manage.py migrate && python manage.py runserver 0.0.0.0:8000"
+    container_name: auth_admin
+    ports:
+      - "8000:8000"
+    logging:
+      options:
+        max-size: '50m'
+
+  telegram_bot:
+    extends:
+      file: django_app.yml
+      service: web
+    environment:
+      TELEGRAM_BOT_API_ID: int_your_telegram_api_id
+      TELEGRAM_BOT_API_HASH: 'your_telegram_api_hash'
+      TELEGRAM_BOT_TOKEN: 'your_telegram_bot_token'
+    entrypoint: python manage.py run_telegram_auth_bot
+    depends_on:
+      - admin
+    container_name: telegram_bot
+    logging:
+      options:
+        max-size: '50m'
